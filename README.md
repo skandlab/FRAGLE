@@ -6,6 +6,7 @@ If you have 100 samples and you want to get tumour fraction prediction for these
     - Put that folder inside "bam_files" folder
     - Note that "sample.bam" and "sample.bai" should be the names used inside each of your your sample name/ID folder
     - See example here: https://bit.ly/3TpJk4N
+    - NOTE: Make sure that none of the sample name/ID is a substring of another sample name/ID. In such a case, FRAGLE will consider them as same sample during final prediction
 - Running:
     - From the "Fragle" directory, run the "main.py" file
     - The following files will automatically run sequentially one after the other:
