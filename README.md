@@ -1,1 +1,28 @@
 # FRAGLE
+If you have 100 samples and you want to get tumour fraction prediction for these 100 files, then do the following:
+- Installation: You can directly install all required packages using the provided "requirements.txt" file
+- Input:
+    - For each sample, provide the (sample.bam, sample.bai) pair in a folder named according to your sample name/ID
+    - Put that folder inside "bam_files" folder
+    - Note that "sample.bam" and "sample.bai" should be the names used inside each of your your sample name/ID folder
+    - See example here: https://bit.ly/3TpJk4N
+- Running:
+    - From the "Fragle" directory, run the "main.py" file
+    - The following files will automatically run sequentially one after the other:
+        - data_generation.py
+        - low_tf_model.py
+        - high_tf_model.py
+        - selection_model.py
+- Output:
+    - See the Output folder for output
+    - The output will be a two column (sample ID, predicted tumour fraction) csv file
+    - You can see a sample output file inside the Output folder
+- Other Relevant Info:
+    - The three models used in Fragle are saved inside "models" folder
+    - You can see the .ipynb version of the .py files inside "ipynb_version_code_files" folder (better readablity and documentation)
+    - After running "main.py" file, the following intermediate output files will be stored inside "Intermediate_Files" folder:
+        - LT model usable feature file
+        - HT model usable feature file
+        - LT model predictions
+        - HT model predictions
+    - "meta_info" folder contains auxiliary files used for feature extraction, data normalization and model prediction
