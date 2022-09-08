@@ -18,7 +18,6 @@ select_model = load(model_path)
 
 
 def make_prediction_csv():
-    # omit the parts inside ### in the final code
     csv_list = []
     low_csv = 'Intermediate_Files/low_predictions.csv'
     high_csv = 'Intermediate_Files/high_predictions.csv'
@@ -28,20 +27,16 @@ def make_prediction_csv():
     high_df = pd.read_csv(high_csv)
     high_pred_list = high_df.values.tolist()
 
-    for low_sample in low_pred_list:
-      low_sample_id = low_sample[0]
-      for high_sample in high_pred_list:
-        high_sample_id = high_sample[0]
-        if (low_sample_id in high_sample_id) or (high_sample_id in low_sample_id):
-          low_tf, high_tf = low_sample[-1], high_sample[-1]
-          select_score = select_model.predict([[low_tf, high_tf]])[0]
-          score = None
-          if select_score == 1:
-            score = high_tf
-          elif select_score == 0:
-            score = low_tf
-          csv_list.append([low_sample_id, score]) 
-          break
+    for i in range(len(low_pred_list)):
+      sample_id = low_pred_list[i][0]
+      low_tf, high_tf = low_pred_list[i][-1], high_pred_list[i][-1]
+      select_score = select_model.predict([[low_tf, high_tf]])[0]
+      score = None
+      if select_score == 1:
+        score = high_tf
+      elif select_score == 0:
+        score = low_tf
+      csv_list.append([sample_id, score])
          
     filePath = 'Output/Predictions.csv'
     my_df = pd.DataFrame(csv_list)
