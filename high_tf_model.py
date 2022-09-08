@@ -220,7 +220,9 @@ def dataProcess(signal):
     sliced_signal = signal_pad[begin:end]
     mean_signal.append(np.mean(sliced_signal))
     std_signal.append(np.std(sliced_signal))
-  std_signal[std_signal == 0] = 1e-6
+  for i in range(len(std_signal)):
+    if std_signal[i]==0:
+      std_signal[i] = 1e-6 
   signal = np.array((signal - mean_signal)/std_signal, dtype="float32")
   # training stats mean and std columnwise normalize
   signal = (signal - signals_stats["mean"])/ signals_stats["std"]
