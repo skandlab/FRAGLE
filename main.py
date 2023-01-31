@@ -1,11 +1,21 @@
+import sys
 import subprocess
-import os
 
-P = subprocess.run("python data_generation.py", shell=True, capture_output=True, text=True)
-print(P)
-P = subprocess.run("python low_tf_model.py", shell=True, capture_output=True, text=True)
-print(P)
-P = subprocess.run("python high_tf_model.py", shell=True, capture_output=True, text=True)
-print(P)
-P = subprocess.run("python selection_model.py", shell=True, capture_output=True, text=True)
-print(P)
+input_path = sys.argv[1] 
+output_folder = sys.argv[2]
+if input_path.endswith('/')==False:
+    input_path = input_path + '/'
+if output_folder.endswith('/')==False:
+    output_folder = output_folder + '/'
+
+command = 'python data_generation.py {output_folder} {input_path}'.format(output_folder=output_folder, input_path=input_path)
+subprocess.run(command, shell=True)
+
+command = 'python LT_model.py {output_folder}'.format(output_folder=output_folder)
+subprocess.run(command, shell=True)
+
+command = 'python HT_model.py {output_folder}'.format(output_folder=output_folder)
+subprocess.run(command, shell=True)
+
+command = 'python select_model.py {output_folder}'.format(output_folder=output_folder)
+subprocess.run(command, shell=True)

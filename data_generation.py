@@ -2,7 +2,14 @@ import pickle
 import os
 import pysam
 import numpy as np
+import pandas as pd
+import sys
+import subprocess
 
+### INPUT
+output_folder = sys.argv[1]
+path = sys.argv[2]
+###
 
 parentPath = os.getcwd()
 
@@ -33,8 +40,12 @@ def sample_generation(bamPath):
   sample = []
   len_dict = init_len_dict()
   pybam = pysam.AlignmentFile(bamPath, "rb")
+  command = 'samtools view -H {bamPath} | grep @SQ | grep chr'.format(bamPath=bamPath)
+  p = subprocess.run(command, shell=True, capture_output=True, text=True)
   for contig in our_contigs: # genome
     range_list = contig_windows[contig]
+    if len(p.stdout)==0:
+      contig = contig[3:]
     for lst in range_list: # contig
       start, end = lst[0], lst[1]
       for read in pybam.fetch(contig, start, end): # window
@@ -46,22 +57,22 @@ def sample_generation(bamPath):
       sample.append(dict_to_list(len_dict))
       len_dict = init_len_dict()
   
-  sample_arr = np.array(sample).astype(np.int16)
+  sample_arr = np.array(sample)
   return sample_arr
 
-
-os.chdir('bam_files')
 sample_cnt = 0
-for folder in os.listdir():
-  sample_cnt += 1
+for file_ in os.listdir(path):
+  if file_.endswith('.bam'):
+    sample_cnt += 1
 data = np.zeros((sample_cnt, 289, 400))
 
 i = 0
 sample_names = []
-for folder in os.listdir():
-  data[i] = sample_generation(folder + '/sample.bam')
-  sample_names.append(folder)
-  i += 1
+for file_ in os.listdir(path):
+  if file_.endswith('.bam'):
+    data[i] = sample_generation(path + file_)
+    sample_names.append(file_[:-4])
+    i += 1
 
 no_read_windows = [13, 159, 209, 221, 232, 233, 284]
 read_windows = []
@@ -71,7 +82,6 @@ for i in range(289):
 data = data[:, read_windows, :]
 
 
-os.chdir(parentPath)
 sig_dict = {}
 with open('meta_info/sig_bins.pickle', 'rb') as handle:
   sig_dict = pickle.load(handle)
@@ -93,18 +103,20 @@ low_blood = np.expand_dims( np.sum(low_data[:, blood_bins, :], axis=1), axis=1)
 low_data = None
 low_data = np.concatenate((low_tumor, low_blood), axis=1)
 
+if os.path.exists(output_folder)==False:
+  os.mkdir(output_folder)
 
 low_dict = {}
 low_dict['samples'] = low_data
-low_dict['meta_info'] = sample_names
-os.chdir(parentPath) 
-with open('Intermediate_Files/low_data.pkl', 'wb') as f:
+low_dict['meta_info'] = sample_names 
+low_path = output_folder + 'low_data.pkl'
+with open(low_path, 'wb') as f:
   pickle.dump(low_dict, f)
 
 
 high_dict = {}
 high_dict['samples'] = high_data
 high_dict['meta_info'] = sample_names
-os.chdir(parentPath) 
-with open('Intermediate_Files/high_data.pkl', 'wb') as f:
+high_path = output_folder + 'high_data.pkl'
+with open(high_path, 'wb') as f:
   pickle.dump(high_dict, f)

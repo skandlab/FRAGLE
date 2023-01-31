@@ -10,17 +10,24 @@ import math
 import copy
 from sklearn.svm import SVC
 from joblib import dump, load
+import sys
 
 
-parentPath = os.getcwd()
+### Input
+data_folder = sys.argv[1]
+###
+
+
 model_path = 'models/select_model.joblib'
 select_model = load(model_path)
 
 
+
 def make_prediction_csv():
-    csv_list = []
-    low_csv = 'Intermediate_Files/low_predictions.csv'
-    high_csv = 'Intermediate_Files/high_predictions.csv'
+    # omit the parts inside ### in the final code
+    detail_csv_list = []
+    low_csv = data_folder + 'low_predictions.csv'
+    high_csv = data_folder + 'high_predictions.csv'
 
     low_df = pd.read_csv(low_csv)
     low_pred_list = low_df.values.tolist()
@@ -36,10 +43,10 @@ def make_prediction_csv():
         score = high_tf
       elif select_score == 0:
         score = low_tf
-      csv_list.append([sample_id, score])
-         
-    filePath = 'Output/Predictions.csv'
-    my_df = pd.DataFrame(csv_list)
-    my_df.to_csv(filePath, index=False, header=['Sample_ID', 'Pred_TF'])
+      detail_csv_list.append([sample_id, score]) 
+
+    filePath = data_folder + 'Predictions.csv'
+    my_df = pd.DataFrame(detail_csv_list)
+    my_df.to_csv(filePath, index=False, header=['Sample_ID', 'Fragle_Prediction'])
 
 make_prediction_csv() 

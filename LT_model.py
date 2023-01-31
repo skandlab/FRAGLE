@@ -15,14 +15,15 @@ import torchvision.transforms as transforms
 from torch import optim  
 from torch import nn  
 from torch.utils.data import DataLoader  
-from tqdm import tqdm  
 from torch.utils.data import Dataset, DataLoader
-from tqdm import tqdm
 import copy
+import sys
 
 
-parentPath = os.getcwd()
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+### Input
+data_folder = sys.argv[1]
+###
+
 
 
 class NN(nn.Module):
@@ -52,16 +53,16 @@ class NN(nn.Module):
     x = torch.squeeze(self.NN_join(x))
     return x
 
+device = torch.device("cpu")
 model_path = 'models/low_model.pt'
 low_model = NN().to(device)
-if device == 'cuda':
-  low_model.load_state_dict(torch.load(model_path))
-else:
-  low_model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+low_model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+
 
 
 data_dict = {}
-with open('Intermediate_Files/low_data.pkl', 'rb') as f:
+low_data_path = data_folder + 'low_data.pkl'
+with open(low_data_path, 'rb') as f:
   data_dict = pickle.load(f)
 data = data_dict['samples']
 sample_names = data_dict['meta_info']
@@ -72,6 +73,7 @@ data = data/ sums[:, :, np.newaxis]
 data = data/ max_arr
 
 
+
 csv_list = []
 low_model.eval()
 with torch.no_grad():
@@ -79,8 +81,8 @@ with torch.no_grad():
       dataX = torch.tensor(data[i]).type(torch.float)
       dataX = torch.unsqueeze(dataX, 0)
       score = low_model(dataX.to(device))
-      csv_list.append([sample_names[i], np.round(score.item(),5)]) 
+      csv_list.append([sample_names[i], np.round(score.item(),5)])
         
-filePath = 'Intermediate_Files/low_predictions.csv'
+filePath = data_folder + 'low_predictions.csv'
 my_df = pd.DataFrame(csv_list)
-my_df.to_csv(filePath, index=False, header=['Sample_ID', 'Pred_TF']) 
+my_df.to_csv(filePath, index=False, header=['Sample_ID', 'Pred_TF'])

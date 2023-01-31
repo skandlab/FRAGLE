@@ -8,10 +8,13 @@ import json
 import os
 import pickle5 as pickle
 import pandas as pd
+import math
+import sys
 
 
-parentPath = os.getcwd()
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+### Input
+data_folder = sys.argv[1]
+###
 
 
 class MLPLayer(nn.Module):
@@ -32,6 +35,9 @@ class MLPLayer(nn.Module):
         x = x + x_in
         return x
 class CFDNAModel(nn.Module):
+    """
+    CFDNA Model to predict tumor fractions for given signals and scaleograms images.
+    """
     def __init__(self, config, tumor_fraction_stats):
         super(CFDNAModel, self).__init__()
         # Define net parameters
@@ -59,6 +65,9 @@ class CFDNAModel(nn.Module):
         self.embedding_layer = nn.Linear(
            self.signal_dimension, self.hidden_dimension
            )
+        # self.embedding_layer_2 = nn.Linear(
+        #    4*self.hidden_dimension, self.hidden_dimension
+        #    )
         self.embedding_layer_2_reg = nn.Linear(
             self.hidden_dimension, self.hidden_dimension
         )
@@ -100,6 +109,33 @@ class CFDNAModel(nn.Module):
             self.dropout_rate
             )
     def forward(self, signal):
+        # tumor_fraction, tumor_fraction_norm,
+        # tumor_fraction_log, tumor_fraction_log_norm,
+        # tumor_classification_label, classification_cw):
+        """
+        Args
+            signal:
+            signal_norm: Input edge adjacency matrix (batch_size, num_nodes, num_nodes)
+            scaleogram_image: Input edge distance matrix (batch_size, num_nodes, num_nodes)
+            tumor_fraction: Input nodes (batch_size, num_nodes)
+            tumor_fraction_norm: Input node coordinates (batch_size, num_nodes, node_dim)
+            tumor_fraction_log:
+            tumor_fraction_log_norm:
+            tumor_classification_label:
+            classification_cw: Class weights for tumor vs healhy classification loss
+        Returns:
+            y_pred_edges: Predictions for edges (batch_size, num_nodes, num_nodes)
+            # y_pred_nodes: Predictions for nodes (batch_size, num_nodes)
+            loss: Value of loss function
+            y_pred_reg_unnormalize
+            y_pred_reg
+            y_pred_class
+            mse_loss
+            mse_log_loss
+            nll_loss
+            unnormalize_mae
+            unnormalize_mae_log
+        """
         # Node and edge embedding
         x = self.embedding_layer(signal)
         x = self.bn(x)
@@ -123,11 +159,13 @@ class CFDNAModel(nn.Module):
         y_pred_reg = self.regression_layer(x_reg)
         return y_pred_reg, torch.squeeze(y_pred_class)
 
+
     def __unnormalize(self, pred_reg):
         return (
             self.tumor_fraction_stats["std"] * pred_reg
             + self.tumor_fraction_stats["mean"]
         )
+
 
     def __tumor_fraction_clipping(self, pred_reg, normalize = False):
 
@@ -141,13 +179,19 @@ class CFDNAModel(nn.Module):
 
         return pred_reg
 
+
     def output(self, pred_reg, pred_prob):
 
         regression_unnormalize = self.__unnormalize(pred_reg)
         regression_unnormalize = self.__tumor_fraction_clipping(regression_unnormalize)
+
         classification_prediction = torch.sigmoid(torch.squeeze(pred_prob))
-        regression_final = regression_unnormalize
+
+        regression_final = regression_unnormalize#*classification_prediction.unsqueeze(1)
+
         return regression_final, regression_unnormalize, classification_prediction
+
+
 
 
 class Settings(dict):
@@ -175,6 +219,7 @@ config_train_path = 'meta_info/train.json'
 config_train = get_config(config_train_path)
 
 
+
 signals_stats = {}
 with open('meta_info/signals_stats.pkl', 'rb') as f:
   signals_stats = pickle.load(f)
@@ -184,23 +229,21 @@ with open('meta_info/tumor_fractions.pkl', 'rb') as f:
   tumor_fractions_stats = pickle.load(f)
 
 
+
+device = torch.device("cpu")
 net = nn.DataParallel(CFDNAModel(config_train, tumor_fractions_stats))
-# Load checkpoint
-checkpoint = None
-if torch.cuda.is_available():
-  net.cuda()
-  checkpoint = torch.load("models/high_model.tar")
-else:
-  checkpoint = torch.load("models/high_model.tar", map_location='cpu')
-# Load network state
+checkpoint = torch.load("models/high_model.tar", map_location='cpu')
 net.load_state_dict(checkpoint['net_state_dict'])
 
 
+
 data_dict = {}
-with open('Intermediate_Files/high_data.pkl', 'rb') as f:
+high_data_path = data_folder + 'high_data.pkl'
+with open(high_data_path, 'rb') as f:
   data_dict = pickle.load(f)
 data = data_dict['samples']
 sample_names = data_dict['meta_info']
+
 
 
 def dataProcess(signal):
@@ -224,9 +267,11 @@ def dataProcess(signal):
     if std_signal[i]==0:
       std_signal[i] = 1e-6 
   signal = np.array((signal - mean_signal)/std_signal, dtype="float32")
+  
   # training stats mean and std columnwise normalize
   signal = (signal - signals_stats["mean"])/ signals_stats["std"]
   return signal
+
 
 
 csv_list = []
@@ -240,6 +285,6 @@ with torch.no_grad():
       score, _, _ = net.module.output(y_pred_reg, y_pred_class)
       csv_list.append([sample_names[i], np.round(score.item(),5)])
         
-filePath = 'Intermediate_Files/high_predictions.csv'
+filePath = data_folder + 'high_predictions.csv'
 my_df = pd.DataFrame(csv_list)
 my_df.to_csv(filePath, index=False, header=['Sample_ID', 'Pred_TF'])
