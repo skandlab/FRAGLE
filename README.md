@@ -58,16 +58,6 @@ Fragle is an easy to use machine learning based software that can detect and qua
     - **THREADS**: Number of threads to use for off-target bam file extraction from targeted bam files (integer type optional argument, default: 32)
         - This argument is only utilized when the 'T' option is provided, meaning that you are running Fragle on targeted sequencing data.
         - A higher THREADS value will make the off-target bam extraction process significantly faster.
-- Summary Table for the Arguments:
-| Argument        | Description                                                                                           | Type          | Default                              |
-|-----------------|-------------------------------------------------------------------------------------------------------|---------------|--------------------------------------|
-| INPUT_FOLDER | Input folder path full of BAM files and corresponding BAI files.                                       | Required (string) | N/A                                  |
-| OUTPUT_FOLDER| Output folder path where Fragle predictions, processed features, and off-target BAM files will be saved. | Required (string) | N/A                                  |
-| OPTION       | Fragle options: 'F' for processed feature, 'R' for raw WGS/off-target BAM files, 'T' for targeted sequencing. | Required (string) | N/A                                  |
-| BIN_LOCATIONS | CSV file path for genomic bin locations for feature generation.                          | Optional (string) | `meta_info/hg19_bin_locations.csv`  |
-| TARGET_BED   | BED file path for targeted sequencing BAM files (only for 'T' option).                                 | Optional (string) | `empty.bed`                          |
-| CPU          | Number of CPUs to use for parallel processing.                                                        | Optional (integer) | 32                                  |
-| THREADS      | Number of threads for off-target BAM file extraction (only for 'T' option).                           | Optional (integer) | 32                                  |
 
 
 ## Example Running Commands for Fragle
