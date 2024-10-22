@@ -1,6 +1,6 @@
 # Fragle
 Fragle is an easy to use machine learning based software that can detect and quantify tumor fraction for all cancer types. It can work on both low pass whole genome sequencing (as low as ~0.05X) and targeted sequencing cell free DNA data derived from blood.<br>
-![Fragle Overview](Fragle_Overview.png)
+<img src="Fragle_Overview.png" alt="Fragle_Overview" width="50%">
 
 ## Installation
 - **Requirement**: You need to have `conda` available in your system.
