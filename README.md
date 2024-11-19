@@ -1,5 +1,5 @@
 # Fragle
-Fragle is an easy to use machine learning based software that can detect and quantify tumor fraction for all cancer types. It can work on both low pass whole genome sequencing (as low as ~0.05X) and targeted sequencing cell free DNA data derived from blood.<br>
+Fragle is a fast and versatile method for detection and quantification of circulating tumor DNA (ctDNA) in blood plasma samples. Fragle is cancer-agnostic (tested across 8+ cancer types) and works from both plasma lpWGS (as low as ~0.05X) and targeted sequencing data.<br>
 <div align="center">
   <img src="Fragle_Overview.png" alt="Fragle_Overview" width="70%">
 </div>
@@ -23,8 +23,8 @@ Fragle is an easy to use machine learning based software that can detect and qua
 
 ## Fragle Input and Output Overview
 - **Input**:
-  - A directory full of WGS/Off-Target/Targeted Sequencing BAM files:
-    - All BAM files inside the input directory must be of one type (either WGS or off-target or targeted sequencing).
+  - A directory with plasma sequencing data for a set of samples:
+    - All BAM files inside this input directory must be of one type (WGS or targeted sequencing).
     - All BAM files must be mapped to a specific reference genome (hg19 / GRCh37 / hg38).
     - The index file (.bai) must be provided with each BAM file.
   - In case the input directory contains targeted sequencing BAM files, you will also need to provide the BED file containing on-target sequenced regions.
