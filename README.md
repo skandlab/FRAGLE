@@ -41,12 +41,12 @@ Fragle is a fast and versatile method for detection and quantification of circul
 ## Running Fragle
 - Command:
     ```bash
-    python main.py --input_folder <INPUT_FOLDER> --output_folder <OUTPUT_FOLDER> --option <OPTION> --bin_locations <BIN_LOCATIONS> --target_bed <TARGET_BED> --CPU <CPU> --threads <THREADS>
+    python main.py --input <INPUT_FOLDER> --output <OUTPUT_FOLDER> --mode <MODE> --genome_build <GENOME_BUILD> --target_bed <TARGET_BED> --cpu <CPU> --threads <THREADS>
     ```
 - Command Line Argument Description:
     - **INPUT_FOLDER**: Input folder path full of bam files and corresponding bai files [required string type argument]
     - **OUTPUT_FOLDER**: Output folder path where the Fragle predictions, processed features, and off-target bam files (in case of targeted sequencing bam files) will be generated [required string type argument]
-    - **OPTION**: 3 options: (required string type argument)
+    - **MODE**: 3 options: (required string type argument)
         - 'R': run Fragle on raw WGS bam files (or off-target bam files).
         - 'T': run Fragle on targeted sequencing bam files (containing both on and off-target reads); this mode also requires the **TARGET_BED** option.
         - 'F': run Fragle on processed features If you want to run Fragle directly on the processed features obtained from raw bam files (e.g., `Output/data.pkl`).
@@ -67,17 +67,17 @@ Fragle is a fast and versatile method for detection and quantification of circul
 ## Example Running Commands for Fragle
 - **Running Fragle on hg19 mapped WGS BAM files:**
     ```bash
-    python main.py --input_folder Input/ --output_folder Output/ --option R
+    python main.py --input Input/ --output Output/ --mode R
     ```
 
 - **Running Fragle on hg38 mapped WGS BAM files:**
     ```bash
-    python main.py --input_folder Input/ --output_folder Output/ --option R --bin_locations meta_info/hg38_bin_locations.csv
+    python main.py --input Input/ --output Output/ --mode R --genome_build hg38
     ```
 
 - **Running Fragle on hg38 mapped off-target BAM files:**
     ```bash
-    python main.py --input_folder Input/ --output_folder Output/ --option R --bin_locations meta_info/hg38_bin_locations.csv
+    fragle --input_folder Input/ --output_folder Output/ --option R --bin_locations meta_info/hg38_bin_locations.csv
     ```
 
 - **Running Fragle on GRCh37 mapped targeted sequencing BAM files:**
