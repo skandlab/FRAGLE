@@ -6,7 +6,10 @@ Fragle is a fast and versatile method for detection and quantification of circul
 
 
 ## Installation
-- **Requirement**: You need to have `conda` available in your system.
+- Download and unzip the Fragle source code (https://github.com/skandlab/FRAGLE/archive/refs/heads/main.zip).
+
+- **Installing software dependencies**:
+- You need to have `conda` available in your system.
 - Download `Fragle.tar.gz` file from [Zenodo](https://zenodo.org/records/13968359).
 - Command for using `Fragle.tar.gz` file for installation (see [Conda Pack](https://conda.github.io/conda-pack/) for more details):
   - `mkdir -p ./Fragle` (creating directory for unpacking)
@@ -15,6 +18,8 @@ Fragle is a fast and versatile method for detection and quantification of circul
     - Now, `Fragle/bin` is added to your path.
     - You can now run Fragle software.
   - `source ./Fragle/bin/deactivate` (deactivate environment)
+ 
+- **Installing software dependencies (alternative method)**:
 - If you fail to install the software using the `Fragle.tar.gz` file, then you can manually install the following software libraries instead:
   - `Python 3.7+`, `Sklearn 1.2.2`, `Pandas`, `PyTorch` (CPU version), `Numpy`, `Pysam`, `SAMtools`
   - Use `pip` or `conda` to install the above-mentioned software libraries
@@ -39,6 +44,8 @@ Fragle is a fast and versatile method for detection and quantification of circul
 
 
 ## Running Fragle
+Inside the Fragle software folder, run the follwing commands:
+
 - Command:
     ```bash
     python main.py --input <INPUT_FOLDER> --output <OUTPUT_FOLDER> --mode <MODE> --genome_build <GENOME_BUILD> --target_bed <TARGET_BED> --cpu <CPU> --threads <THREADS>
@@ -64,6 +71,7 @@ Fragle is a fast and versatile method for detection and quantification of circul
         - A higher THREADS (if available) value will make the off-target bam extraction process significantly faster.
 
 
+
 ## Example Running Commands for Fragle
 - **Running Fragle on hg19 mapped WGS BAM files:**
     ```bash
@@ -75,24 +83,23 @@ Fragle is a fast and versatile method for detection and quantification of circul
     python main.py --input Input/ --output Output/ --mode R --genome_build hg38
     ```
 
-- **Running Fragle on hg38 mapped off-target BAM files:**
-    ```bash
-    fragle --input_folder Input/ --output_folder Output/ --option R --bin_locations meta_info/hg38_bin_locations.csv
-    ```
-
 - **Running Fragle on GRCh37 mapped targeted sequencing BAM files:**
     ```bash
-    python main.py --input_folder Input/ --output_folder Output/ --option T --target_bed on_target.bed
+    python main.py --input Input/ --output Output/ --option T --target_bed my_target.bed
     ```
 
-- **Running Fragle on hg38 mapped targeted sequencing BAM files utilizing 16 threads and 16 CPUs:**
+- **Running Fragle on hg38 mapped BAM files containing only off-target reads:**
     ```bash
-    python main.py --input_folder Input/ --output_folder Output/ --option T --bin_locations meta_info/hg38_bin_locations.csv --target_bed on_target.bed --CPU 16 --threads 16
+    python main.py --input Input/ --output Output/ --option R --genome_build hg38
+    ```
+- **Running Fragle on hg38 mapped targeted sequencing BAM files utilizing 16 CPU cores and 16 threads:**
+    ```bash
+    python main.py --input Input/ --output Output/ --option T --genome_build hg38 --target_bed my_target.bed --CPU 16 --threads 16
     ```
 
 - **Running Fragle on processed feature file (`data.pkl`) located inside `Input/` folder:**
     ```bash
-    python main.py --input_folder Input/ --output_folder Output/ --option F
+    python main.py --input Input/ --output Output/ --option F
     ```
 
 
@@ -109,13 +116,13 @@ Fragle is a fast and versatile method for detection and quantification of circul
 
 
 ## Runtime and Memory Requirements:
-- **20 MB of CPU memory** is sufficient to run Fragle.
-- This CPU memory requirement remains constant even if you vary:
+- **20 MB memory** is sufficient to run Fragle.
+- This memory requirement remains constant even if you vary:
     - Number of BAM files in your input directory
     - Sequencing depth of the BAM files in your input directory
 - **No GPU** is required
-- It takes around **50 seconds** for Fragle to predict ctDNA fraction from a 1X WGS BAM utilizing only 1 CPU. The runtime can take only around **3 seconds** if you use the default CPU number of 32.
-- The runtime increases **linearly** with the **increase of sequencing depth**
+- It takes around **50 seconds** for Fragle to predict ctDNA fraction from a 1X-coverage WGS BAM utilizing only 1 CPU. The runtime can be reduced to **~3 seconds** if you use the default CPU number of 32.
+- The runtime increases approximately **linearly** with the **increase of sequencing depth**
 
 
 ## Contacts
