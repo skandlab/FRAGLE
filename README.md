@@ -52,7 +52,7 @@ Inside the Fragle software folder, run the follwing commands:
 - Command Line Argument Description:
     - **INPUT_FOLDER**: Input folder path full of bam files and corresponding bai files [required string type argument]
     - **OUTPUT_FOLDER**: Output folder path where the Fragle predictions, processed features, and off-target bam files (in case of targeted sequencing bam files) will be generated [required string type argument]
-    - **MODE**: 3 possible inputs for mode selection [required string type argument]:
+    - **MODE**: [required string type argument]:
         - 'R': run Fragle on raw WGS bam files (or off-target bam files).
         - 'T': run Fragle on targeted sequencing bam files (containing both on and off-target reads); this mode also requires the **TARGET_BED** option.
         - 'F': run Fragle directly on processed features obtained from raw bam files (e.g., `Output/data.pkl`).
@@ -60,16 +60,14 @@ Inside the Fragle software folder, run the follwing commands:
         - 'hg19': (default option) if your bam is mapped to hg19 or GRCh37 reference genome.
         - 'hg38': if your bam is mapped to hg38 reference genome.
     - **TARGET_BED**: bed file path for targeted sequencing bam file [optional string type argument]
-        - This argument is only used when 'T' option is provided, meaning that you are running Fragle on targeted sequencing data.
+        - This argument is only used when 'T' option is provided, meaning that you are running Fragle on targeted sequencing data files.
         - The bed file is used to derive the off-target bam files from targeted sequencing data (the off-target bam files will be generated inside the **OUTPUT_FOLDER**).
     - **CPU**: Number of CPU cores to use for parallel processing [integer type optional argument, default: 32]
-        - If your running environment has multiple processors, setting the CPU to a higher value (e.g., 16 or 32) is recommended.
+        - If your running environment has multiple processors/cores, setting CPU to a value (e.g., 16 or 32) corresponding to number of available cores is recommended.
         - A higher CPU core value (if available) will significantly speed up the software execution.
     - **THREADS**: Number of threads to use for off-target bam file extraction [integer type optional argument, default: 32]
         - This argument is only utilized when the 'T' option is provided, meaning that you are running Fragle on targeted sequencing data.
         - A higher THREADS (if available) value will make the off-target bam extraction process significantly faster.
-
-
 
 ## Example Running Commands for Fragle
 - **Running Fragle on hg19 mapped WGS BAM files:**
@@ -126,5 +124,5 @@ Inside the Fragle software folder, run the follwing commands:
 
 ## Contacts
 If you have any questions or feedback, please contact us at:<br>
-rafeed.rahman015@gmail.com<br>
-skanderupamj@gis.a-star.edu.sg
+rafeed.rahman015 <AT> gmail.com<br>
+skanderupamj <AT> gis.a-star.edu.sg
