@@ -124,5 +124,5 @@ Inside the Fragle software folder, run the follwing commands:
 
 ## Contacts
 If you have any questions or feedback, please contact us at:<br>
-rafeed.rahman015 <AT> gmail.com<br>
-skanderupamj <AT> gis.a-star.edu.sg
+rafeed.rahman015 _AT_ gmail.com<br>
+skanderupamj _AT_ gis.a-star.edu.sg
