@@ -4,7 +4,6 @@ Fragle is a fast and versatile method for detection and quantification of circul
   <img src="Fragle_Overview.png" alt="Fragle_Overview" width="70%">
 </div>
 
-
 ## Installation
 - Download and unzip the Fragle source code (https://github.com/skandlab/FRAGLE/archive/refs/heads/main.zip).
 
