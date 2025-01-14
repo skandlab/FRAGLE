@@ -1,28 +1,23 @@
 # Importing libraries
 # sklearn version 1.2.2 required: "pip install scikit-learn==1.2.2"
-import json
-import pandas as pd
-import csv
+import argparse
 import os
-import sys
+import pandas as pd
 import pickle
 import numpy as np
-import random
-import math
 import torch
-import torchvision
 import torch.nn.functional as F
-import torchvision.datasets as datasets
-import torchvision.transforms as transforms
 from torch import nn
-from torch.utils.data import DataLoader
-from torch.utils.data import Dataset, DataLoader
-from joblib import dump, load
+from joblib import load
 
 
-# Input and Output folder path
-input_folder = sys.argv[1]
-output_folder = sys.argv[2]
+parser = argparse.ArgumentParser()
+parser.add_argument('--input', type=str, required=True, help='Path to a data.pkl file with processed features.')
+parser.add_argument('--output', type=str, required=True, help='Output folder to store the Fragle predictions at.')
+args = parser.parse_args()
+
+if not os.path.exists(args.output):
+    os.mkdir(args.output)
 
 # loading meta_info for prediction
 device = torch.device("cpu")
@@ -124,8 +119,7 @@ select_model = load('Models/select_model.pkl')
 
 # data loading and feature generation
 data_dict = {}
-data_path = input_folder + 'data.pkl'
-with open(data_path, 'rb') as f:
+with open(args.input, 'rb') as f:
   data_dict = pickle.load(f)
 data = data_dict['samples']
 sample_names = data_dict['meta_info']
@@ -136,7 +130,6 @@ for i in range(data.shape[0]):
     coverage = float( frag_no / unit_frag_no )
     if coverage<0.025:
         print(f'WARNING: too few reads in sample {sample_names[i]}')
-
 
 
 data_X = np.copy(data)
@@ -168,10 +161,10 @@ def predict_tf(model, model_type):
             score, _ = model(dataX.to(device))
             if model_type=='LT':
                 score = score.item()
-                csv_path = output_folder + 'LT.csv'
+                csv_path = args.output + 'LT.csv'
             elif model_type=='HT':
                 score = score.item() * TF_std + TF_median
-                csv_path = output_folder + 'HT.csv'
+                csv_path = args.output + 'HT.csv'
             csv_list.append([sample_names[i], score])
             # csv_list.append([sample_names[i][0], sample_names[i][1], score])
     df = pd.DataFrame(csv_list)
@@ -197,7 +190,7 @@ for i in range(len(LT_preds)):
     csv_list.append([sample_id, score])
     # csv_list.append([cohort, sample_id, score]) 
 
-filePath = output_folder + 'Fragle.csv'
+filePath = args.output + 'Fragle.csv'
 df = pd.DataFrame(csv_list)
 df.to_csv(filePath, index=False, header=['Sample_ID', 'ctDNA_Burden'])
 # df.to_csv(filePath, index=False, header=['Cohort', 'Sample_ID', 'ctDNA_Burden'])
