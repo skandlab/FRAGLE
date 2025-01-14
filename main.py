@@ -7,7 +7,7 @@ import pathlib
 parser = argparse.ArgumentParser()
 parser.add_argument('--input', type=str, nargs="*", required=True, help='Path(s) to either a single input folder with bam files, to one or more `.bam` files, or to a single data.pkl file with processed features.')
 parser.add_argument('--output', type=str, required=True, help='Output folder path where the Fragle predictions and processed features can be found')
-parser.add_argument('--mode', type=str, required=True, help='3 options: (1) F -> output from processed feature, (2) R -> output from raw WGS/off-target bam file, (3) T -> output from targeted sequencing bam file')
+parser.add_argument('--mode', type=str, required=True, choices=["R", "T", "F"], help='3 options: (1) F -> output from processed feature, (2) R -> output from raw WGS/off-target bam file, (3) T -> output from targeted sequencing bam file')
 parser.add_argument('--genome_build', type=str, default='hg19', help='reference genome version (hg19/GRCh37/hg38) to which your input bam files have been mapped to')
 parser.add_argument('--target_bed', type=str, default='empty.bed', help='bed file for targeted sequencing (only utilized when T option is used)')
 parser.add_argument('--cpu', type=int, default=32, help='Number of CPUs to use for parallel processing of bam files')
