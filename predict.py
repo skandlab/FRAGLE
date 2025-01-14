@@ -1,6 +1,7 @@
 # Importing libraries
 # sklearn version 1.2.2 required: "pip install scikit-learn==1.2.2"
 import argparse
+import os
 import pandas as pd
 import pickle
 import numpy as np
@@ -14,6 +15,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--input', type=str, required=True, help='Path to a data.pkl file with processed features.')
 parser.add_argument('--output', type=str, required=True, help='Output folder to store the Fragle predictions at.')
 args = parser.parse_args()
+
+if not os.path.exists(args.output):
+    os.mkdir(args.output)
 
 # loading meta_info for prediction
 device = torch.device("cpu")
