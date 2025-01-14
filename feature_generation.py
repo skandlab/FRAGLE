@@ -1,5 +1,6 @@
 import argparse
 import os
+import pathlib
 import subprocess
 import numpy as np
 import pickle
@@ -14,25 +15,30 @@ args = parser.parse_args()
 sample_cnt = len(args.input)
 
 if not os.path.exists(args.output):
-  os.mkdir(args.output)
+    os.mkdir(args.output)
 
 data = np.zeros((sample_cnt, 350))
 data_meta = []
 
 i = 0
 for file_ in args.input:
-  output_path = f'{args.output}/{file_[:-4]}.npy'
-  print(i+1, file_)
-  data_meta.append(file_[:-4])
-  command = f'python sample_feature_generation.py {file_} {output_path} {args.cpu} {args.bin_locations}'
-  subprocess.run(command, shell=True)
-  data[i] = np.load(output_path)
-  os.remove(output_path)
-  i += 1
+    filename = pathlib.Path(file_).name
+    if filename[-4:] != ".bam":
+        raise ValueError(
+            "Feature Generation: Input file path did not end with '.bam'."
+        )  # Shouldn't happen
+    output_path = f"{args.output}/{filename[:-4]}.npy"
+    print(i + 1, file_)
+    data_meta.append(file_[:-4])
+    command = f"python sample_feature_generation.py {file_} {output_path} {args.cpu} {args.bin_locations}"
+    subprocess.run(command, shell=True)
+    data[i] = np.load(output_path)
+    os.remove(output_path)
+    i += 1
 
 data_dict = {}
-data_dict['samples'] = data
-data_dict['meta_info'] = data_meta
-output_file = f'{args.output}/data.pkl' 
-with open(output_file, 'wb') as f:
-  pickle.dump(data_dict, f)
+data_dict["samples"] = data
+data_dict["meta_info"] = data_meta
+output_file = f"{args.output}/data.pkl"
+with open(output_file, "wb") as f:
+    pickle.dump(data_dict, f)
