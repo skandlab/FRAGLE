@@ -4,7 +4,6 @@ Fragle is a fast and versatile method for detection and quantification of circul
   <img src="Fragle_Overview.png" alt="Fragle_Overview" width="70%">
 </div>
 
-
 ## Installation
 - Download and unzip the Fragle source code (https://github.com/skandlab/FRAGLE/archive/refs/heads/main.zip).
 
@@ -28,13 +27,13 @@ Fragle is a fast and versatile method for detection and quantification of circul
 
 ## Fragle Input and Output Overview
 - **Input**:
-  - A directory with plasma sequencing data for a set of samples:
+  - Path of a directory with plasma sequencing BAM files / a single BAM file:
     - All BAM files inside this input directory must be of one type (WGS or targeted sequencing).
     - All BAM files must be mapped to a specific reference genome (hg19 / GRCh37 / hg38).
     - The index file (.bai) must be provided with each BAM file.
-  - In case the input directory contains targeted sequencing BAM files, you will also need to provide the BED file containing on-target sequenced regions.
+  - In case the input consists of one or more targeted sequencing BAM files, you will also need to provide the BED file containing on-target sequenced regions.
 - **Output**:
-  - Fragle predicted ctDNA fractions for all BAM files in the input directory.
+  - Fragle predicted ctDNA fractions for all input BAM files.
   - Processed feature file (.pkl) used by the Fragle models.
   - Off-target BAM files (if targeted sequencing BAM files are provided).
 - **Example**:
@@ -44,38 +43,40 @@ Fragle is a fast and versatile method for detection and quantification of circul
 
 
 ## Running Fragle
-Inside the Fragle software folder, run the follwing commands:
+Inside the Fragle software folder, run the following commands:
 
 - Command:
     ```bash
-    python main.py --input <INPUT_FOLDER> --output <OUTPUT_FOLDER> --mode <MODE> --genome_build <GENOME_BUILD> --target_bed <TARGET_BED> --cpu <CPU> --threads <THREADS>
+    python main.py --input <INPUT> --output <OUTPUT_FOLDER> --mode <MODE> --genome_build <GENOME_BUILD> --target_bed <TARGET_BED> --cpu <CPU> --threads <THREADS>
     ```
 - Command Line Argument Description:
-    - **INPUT_FOLDER**: Input folder path full of bam files and corresponding bai files [required string type argument]
+    - **INPUT**: Input folder path full of bam files (or path to a single BAM file) [required string type argument]
     - **OUTPUT_FOLDER**: Output folder path where the Fragle predictions, processed features, and off-target bam files (in case of targeted sequencing bam files) will be generated [required string type argument]
-    - **MODE**: 3 possible inputs for mode selection [required string type argument]:
+    - **MODE**: [required string type argument]:
         - 'R': run Fragle on raw WGS bam files (or off-target bam files).
         - 'T': run Fragle on targeted sequencing bam files (containing both on and off-target reads); this mode also requires the **TARGET_BED** option.
         - 'F': run Fragle directly on processed features obtained from raw bam files (e.g., `Output/data.pkl`).
-    - **GENOME_BUILD**: Specifiy reference genome version. [optional string type argument]
+    - **GENOME_BUILD**: Specify reference genome version. [optional string type argument]
         - 'hg19': (default option) if your bam is mapped to hg19 or GRCh37 reference genome.
         - 'hg38': if your bam is mapped to hg38 reference genome.
     - **TARGET_BED**: bed file path for targeted sequencing bam file [optional string type argument]
-        - This argument is only used when 'T' option is provided, meaning that you are running Fragle on targeted sequencing data.
+        - This argument is only used when 'T' option is provided, meaning that you are running Fragle on targeted sequencing data files.
         - The bed file is used to derive the off-target bam files from targeted sequencing data (the off-target bam files will be generated inside the **OUTPUT_FOLDER**).
     - **CPU**: Number of CPU cores to use for parallel processing [integer type optional argument, default: 32]
-        - If your running environment has multiple processors, setting the CPU to a higher value (e.g., 16 or 32) is recommended.
+        - If your running environment has multiple processors/cores, setting CPU to a value (e.g., 16 or 32) corresponding to number of available cores is recommended.
         - A higher CPU core value (if available) will significantly speed up the software execution.
     - **THREADS**: Number of threads to use for off-target bam file extraction [integer type optional argument, default: 32]
         - This argument is only utilized when the 'T' option is provided, meaning that you are running Fragle on targeted sequencing data.
         - A higher THREADS (if available) value will make the off-target bam extraction process significantly faster.
 
-
-
 ## Example Running Commands for Fragle
 - **Running Fragle on hg19 mapped WGS BAM files:**
     ```bash
     python main.py --input Input/ --output Output/ --mode R
+    ```
+- **Running Fragle on single hg19 mapped WGS BAM file (file-centric run):**
+    ```bash
+    python main.py --input Input/input.bam --output Output/ --mode R
     ```
 
 - **Running Fragle on hg38 mapped WGS BAM files:**
@@ -95,6 +96,10 @@ Inside the Fragle software folder, run the follwing commands:
 - **Running Fragle on hg38 mapped targeted sequencing BAM files utilizing 16 CPU cores and 16 threads:**
     ```bash
     python main.py --input Input/ --output Output/ --mode T --genome_build hg38 --target_bed my_target.bed --cpu 16 --threads 16
+    ```
+- **Running Fragle on hg38 mapped single targeted sequencing BAM file (file-centric run):**
+    ```bash
+    python main.py --input Input/target_sample.bam --output Output/ --mode T --genome_build hg38 --target_bed my_target.bed
     ```
 
 - **Running Fragle on processed feature file (`data.pkl`) located inside `Input/` folder:**
