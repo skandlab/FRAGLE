@@ -68,6 +68,7 @@ Inside the Fragle software folder, run the following commands:
     - **THREADS**: Number of threads to use for off-target bam file extraction [integer type optional argument, default: 32]
         - This argument is only utilized when the 'T' option is provided, meaning that you are running Fragle on targeted sequencing data.
         - A higher THREADS (if available) value will make the off-target bam extraction process significantly faster.
+Note that the main.py file can be run from any location; you do not need to be inside the Fragle software folder.
 
 ## Example Running Commands for Fragle
 - **Running Fragle on hg19 mapped WGS BAM files:**
