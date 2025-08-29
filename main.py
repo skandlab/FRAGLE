@@ -8,9 +8,9 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 os.environ["FRAGLE_HOME"] = script_dir
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--input', type=str, required=True, help='Input folder path full of bam files')
-parser.add_argument('--output', type=str, required=True, help='Output folder path where the Fragle predictions and processed features can be found')
-parser.add_argument('--mode', type=str, required=True, help='3 options: (1) F -> output from processed feature, (2) R -> output from raw WGS/off-target bam file, (3) T -> output from targeted sequencing bam file')
+parser.add_argument('--input', type=str, required=True, help='Input folder path full of bam files/ Input BAM path/ Input histogram feature file path')
+parser.add_argument('--output', type=str, required=True, help='Output folder path where the Fragle predictions and histogram features can be found')
+parser.add_argument('--mode', type=str, required=True, help='3 options: (1) F -> output from histogram feature, (2) R -> output from raw WGS/off-target bam file, (3) T -> output from targeted sequencing bam file')
 parser.add_argument('--genome_build', type=str, default='hg19', help='reference genome version (hg19/GRCh37/hg38) to which your input bam files have been mapped to')
 parser.add_argument('--target_bed', type=str, default='empty.bed', help='bed file for targeted sequencing (only utilized when T option is used)')
 parser.add_argument('--cpu', type=int, default=32, help='Number of CPUs to use for parallel processing of bam files')
@@ -26,8 +26,7 @@ CPU = args.cpu
 num_threads = args.threads
 
 # Handle input (file or directory)
-file_flag = 0
-copied_bam, copied_bai = '', ''
+copied_bam, copied_bai = False, False
 if os.path.isfile(input_path) and input_path.endswith(".bam"):
     # Create output subdirectory named after the BAM file
     bam_basename = os.path.splitext(os.path.basename(input_path))[0]
@@ -39,15 +38,25 @@ if os.path.isfile(input_path) and input_path.endswith(".bam"):
     if not os.path.exists(bai_path):
         raise FileNotFoundError(f"Index file {bai_path} required in the form of [bam_name].bam.bai")
 
-    # Copy BAM and BAI to the output subdirectory
-    shutil.copy(input_path, sample_output_dir)
-    copied_bam = os.path.join(sample_output_dir, f'{bam_basename}.bam')
-    shutil.copy(bai_path, sample_output_dir)
-    copied_bai = f'{copied_bam}.bai'
-    file_flag=1
+    # Symlink BAM and BAI to the output subdirectory
+    def safe_link(src, dest_dir):
+        dst = os.path.join(dest_dir, os.path.basename(src))
+        if os.path.lexists(dst):
+            os.unlink(dst)
+        os.symlink(os.path.realpath(src), dst)
+        return dst
+    
+    copied_bam = safe_link(input_path, sample_output_dir)
+    copied_bai = safe_link(bai_path, sample_output_dir)
 
     input_folder = os.path.join(sample_output_dir, "")
     output_folder = os.path.join(sample_output_dir, "")
+elif os.path.isfile(input_path) and input_path.endswith(".pkl"):
+    source = input_path
+    dest = os.path.join(output_base, 'data.pkl')
+    shutil.copy(source, dest)
+    input_folder = os.path.join(output_base, "")
+    output_folder = os.path.join(output_base, "")
 else:
     input_folder = os.path.join(input_path, "")
     output_folder = os.path.join(output_base, "")
@@ -70,6 +79,9 @@ if option == "R":
 elif option == "F":
     command = f"python {os.path.join(os.environ['FRAGLE_HOME'], 'predict.py')} {input_folder} {output_folder}"
     subprocess.run(command, shell=True, check=False)
+    hist_file = os.path.join(output_folder, 'data.pkl')
+    if os.path.exists(hist_file):
+        os.remove(hist_file)
 elif option == "T":
     off_target_folder = os.path.join(output_folder, "off_target_bams")
     os.makedirs(off_target_folder, exist_ok=True)
@@ -87,6 +99,6 @@ elif option == "T":
     command = f"python {os.environ['FRAGLE_HOME']}/predict.py {output_folder} {output_folder}"
     subprocess.run(command, shell=True, check=False)
 
-if file_flag==1:
-    os.remove(copied_bam)
-    os.remove(copied_bai)
+for f in (copied_bam, copied_bai):
+    if f and os.path.lexists(f):
+        os.unlink(f)
